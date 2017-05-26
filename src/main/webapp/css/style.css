@@ -1,0 +1,23 @@
+table.build-output-analyzer-table {
+    border-collapse: collapse;
+    margin-left: 20px;
+}
+
+table.build-output-analyzer-table td {
+    padding: 10px;
+}
+
+body table.build-output-analyzer-table tr.error-type {
+    color: #D8000C;
+    background: #FFBABA;
+}
+
+body table.build-output-analyzer-table tr.warning-type {
+    color: #9F6000;
+    background: #FEEFB3;
+}
+
+body table.build-output-analyzer-table tr.info-type {
+    color: #00529B;
+    background: #BDE5F8;
+}

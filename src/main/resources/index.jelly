@@ -1,0 +1,5 @@
+<?jelly escape-by-default='true'?>
+<div>
+    BuildOutputAnalyzer plugin checks the output in search of regular expressions and reports them in the build summary.
+</div>
+

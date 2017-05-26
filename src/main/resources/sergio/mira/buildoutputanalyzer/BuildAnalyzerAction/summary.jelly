@@ -1,0 +1,69 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local" xmlns:g="glide">
+    <link rel="stylesheet" href="${rootURL}/plugin/buildoutputanalyzer/css/style.css"/>
+    <t:summary icon="/images/48x48/search.png">
+        <table class="build-output-analyzer-table">
+            <tbody>
+                <j:if test="${!it.errorResults.isEmpty()}">
+                    <j:forEach var="result" items="${it.errorResults}">
+                      <tr class="error-type">
+                          <td style="color: #D8000C">
+                              <j:out value="${result.levelType}"/>
+                          </td>
+                          <td style="color: #D8000C">
+                              <j:out value="${result.message}"/>
+                          </td>
+                          <td>
+                              <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                          </td>
+                      </tr>
+                    </j:forEach>
+
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </j:if>
+                
+                <j:if test="${!it.warningResults.isEmpty()}">
+                    <j:forEach var="result" items="${it.warningResults}">
+                      <tr class="warning-type">
+                          <td style="color: #9F6000">
+                              <j:out value="${result.levelType}"/>
+                          </td>
+                          <td style="color: #9F6000">
+                              <j:out value="${result.message}"/>
+                          </td>
+                          <td>
+                              <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                          </td>
+                      </tr>
+                    </j:forEach>
+
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </j:if>
+                
+                <j:if test="${!it.infoResults.isEmpty()}">
+                    <j:forEach var="result" items="${it.infoResults}">
+                        <tr class="info-type">
+                            <td style="color: #00529B">
+                                <j:out value="${result.levelType}"/>
+                            </td>
+                            <td style="color: #00529B">
+                                <j:out value="${result.message}"/>
+                            </td>
+                            <td>
+                                <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                            </td>
+                        </tr>
+                    </j:forEach>
+                </j:if>
+            </tbody>
+        </table>
+    </t:summary>
+</j:jelly>
