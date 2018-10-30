@@ -1,7 +1,5 @@
 package sergio.mira.buildoutputanalyzer;
 
-import com.cloudbees.plugins.flow.FlowRun;
-import com.cloudbees.plugins.flow.JobInvocation;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -141,7 +139,7 @@ public class BuildAnalyzerRecorder extends Recorder implements SimpleBuildStep {
             }
             
             processRun(build, filteredEntries, bufferSize, results, processedRuns, build.getUrl());
-            
+
             // Save the results in the build
             if (results.size() > 0) {
                 // This renders in summary.jelly
@@ -162,19 +160,6 @@ public class BuildAnalyzerRecorder extends Recorder implements SimpleBuildStep {
         if (subBuildActions.size() > 0) {
             for(BuildInfoExporterAction subBuildAction : subBuildActions) {
                 for(Run<?, ?> subBuild : subBuildAction.getTriggeredBuilds()) {
-                    LOGGER.log(Level.INFO, "Processing child job: " + subBuild.getUrl(), (Object[])null);
-                    processRun(subBuild, entries, bufferSize, results, processedRuns, subBuild.getUrl());
-                }
-            }
-        }
-
-        if (build instanceof FlowRun) {
-            FlowRun flowBuild = (FlowRun)build;
-            Set<FlowRun.JobEdge> graphEdges = flowBuild.getJobsGraph().edgeSet();
-            for(FlowRun.JobEdge edge : graphEdges) {
-                JobInvocation invocation = edge.getTarget();
-                if (invocation != null) {
-                    Run<? , ?> subBuild = invocation.getBuild();
                     LOGGER.log(Level.INFO, "Processing child job: " + subBuild.getUrl(), (Object[])null);
                     processRun(subBuild, entries, bufferSize, results, processedRuns, subBuild.getUrl());
                 }

@@ -6,7 +6,6 @@ Features
 - Customizable level of message: info, warning, error
 - Customizable message (if non provided the found text is used)
 - Dynamic message making use of regular expression groups (can extract info from the regular expression and use it to construct a human readable message)
-- Works with legacy Build Flow Plugin
 - Works with Parametrized Trigger Plugin
 - Works with Pipeline Plugin
 - Supports looking for regular expressions in a buffer of lines (multi line reg exp)
