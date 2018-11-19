@@ -26,7 +26,7 @@ https://github.com/ericsmalling/console-linenumber-plugin
 Building
 ========
 
-Run `mvn`.
+Run `mvn install`.
 
 Pipeline example
 ================
