@@ -6,11 +6,12 @@ import java.io.OutputStream;
 
 public class BuildOutputAnalyzerOutputStream extends OutputStream {
 
+    private final static byte NEW_LINE_CHARACTER = (byte) 0x0A;
+    
     private final OutputStream delegate; 
     private final BuildOutputAnalyzer analyzer;
     
     private final StringBuilder strBuilder;
-    private final byte newlineCharacter = (byte) 0x0A;
     private final byte[] oneElementByteArray = new byte[1];
     private long currentLine;
 
@@ -44,11 +45,9 @@ public class BuildOutputAnalyzerOutputStream extends OutputStream {
     private void processBytes(byte[] b, int off, int len) {
         for (int i = off; i < off + len; i++) {
             byte rb = b[i];
-            if (rb == newlineCharacter) {
+            if (rb == NEW_LINE_CHARACTER) {
                 String line = strBuilder.toString();
-                System.out.println(this);
-                System.out.println(line);
-                analyzer.processLine(line, currentLine);
+                analyzer.processWorkflowRunLine(line, currentLine);
                 
                 // Cleanup line
                 strBuilder.delete(0, strBuilder.length());

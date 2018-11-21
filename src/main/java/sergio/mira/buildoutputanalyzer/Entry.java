@@ -30,9 +30,9 @@ public final class Entry implements Describable<Entry> {
     public final String message;
 
     /**
-     * Search for this entry once.
+     * Search for this entry multiple times in different lines.
      */
-    public final boolean once;
+    public final boolean multiple;
     
     /**
      * Replace the groups found in the regular expression in the label.
@@ -46,9 +46,12 @@ public final class Entry implements Describable<Entry> {
     
     // Compiled regexp Pattern
     public final Pattern pattern;
+    
+    // Flag indicating if a 'Run once' entry has been found already
+    public boolean alreadyFound;
 
     @DataBoundConstructor
-    public Entry(String levelType, String stringMatcher, String regexMatcher, String message, boolean once, boolean dynamicMessage, boolean failBuild) {
+    public Entry(String levelType, String stringMatcher, String regexMatcher, String message, boolean multiple, boolean dynamicMessage, boolean failBuild) {
         this.levelType = levelType;
         this.stringMatcher = stringMatcher;
         this.regexMatcher = regexMatcher;
@@ -58,9 +61,10 @@ public final class Entry implements Describable<Entry> {
             this.pattern = Pattern.compile(this.regexMatcher);
         }
         this.message = message;
-        this.once = once;
+        this.multiple = multiple;
         this.dynamicMessage = dynamicMessage;
         this.failBuild = failBuild;
+        this.alreadyFound = false;
     }
 
     @Override

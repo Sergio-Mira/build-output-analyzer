@@ -8,13 +8,12 @@
                     <j:forEach var="result" items="${it.errorResults}">
                       <tr class="error-type">
                           <td style="color: #D8000C">
-                              <j:out value="${result.levelType}"/>
-                          </td>
-                          <td style="color: #D8000C">
                               <j:out value="${result.message}"/>
                           </td>
                           <td>
-                              <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                              <j:if test="${!result.buildUrl.isEmpty()}">
+                                <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                              </j:if>
                           </td>
                       </tr>
                     </j:forEach>
@@ -30,14 +29,13 @@
                     <j:forEach var="result" items="${it.warningResults}">
                       <tr class="warning-type">
                           <td style="color: #9F6000">
-                              <j:out value="${result.levelType}"/>
-                          </td>
-                          <td style="color: #9F6000">
                               <j:out value="${result.message}"/>
                           </td>
-                          <td>
-                              <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
-                          </td>
+                        <td>
+                            <j:if test="${!result.buildUrl.isEmpty()}">
+                                <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                            </j:if>
+                        </td>
                       </tr>
                     </j:forEach>
 
@@ -52,13 +50,12 @@
                     <j:forEach var="result" items="${it.infoResults}">
                         <tr class="info-type">
                             <td style="color: #00529B">
-                                <j:out value="${result.levelType}"/>
-                            </td>
-                            <td style="color: #00529B">
                                 <j:out value="${result.message}"/>
                             </td>
                             <td>
-                                <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                                <j:if test="${!result.buildUrl.isEmpty()}">
+                                    <a href="${rootURL}/${result.buildUrl}console#${result.line}">Line <j:out value="${result.line}"/></a>
+                                </j:if>
                             </td>
                         </tr>
                     </j:forEach>

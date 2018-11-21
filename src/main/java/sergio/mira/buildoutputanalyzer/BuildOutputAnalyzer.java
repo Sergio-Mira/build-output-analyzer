@@ -7,40 +7,43 @@ import java.util.regex.Matcher;
 
 public class BuildOutputAnalyzer {
 
-    private final Run<?, ?> build;
+    private final Run<?, ?> masterBuild;
     private final List<Entry> entriesOnce;
     private final List<Entry> entriesMultiple;
     
     private final List<Result> results;
 
     public BuildOutputAnalyzer(Run<?, ?> build, List<Entry> entries) {
-        this.build = build;
+        this.masterBuild = build;
         this.entriesOnce = Lists.newArrayList();
         this.entriesMultiple = Lists.newArrayList();
         this.results = Lists.newArrayList();
         
         entries.forEach(e -> {
             if (e.stringMatcher != null || e.pattern != null) {
-                if (e.once) {
-                    this.entriesOnce.add(e);
-                } else {
+                if (e.multiple) {
                     this.entriesMultiple.add(e);
+                } else {
+                    if (!e.alreadyFound) {
+                        this.entriesOnce.add(e);
+                    }
                 }
             }
         });
     }
     
-    void processLine(String line, long currentLine) {
+    void processWorkflowRunLine(String line, long currentLine) {
         if (line != null) {
             // Run entries that only have to be found once
             List<Entry> remove = null;
             for(int i = 0; i < entriesOnce.size(); i++) {
                 Entry entry = entriesOnce.get(i);
-                boolean found = searchForEntry(entry, line, currentLine);
+                boolean found = searchForEntry(masterBuild, "", entry, line, currentLine);
                 if (found) {
                     if (remove == null) {
                         remove = Lists.newArrayList();
                     }
+                    entry.alreadyFound = true;
                     remove.add(entry);
                 }
             }
@@ -51,12 +54,30 @@ public class BuildOutputAnalyzer {
             
             // Run entries that can be run multiple times
             entriesMultiple.forEach(e -> {
-                searchForEntry(e, line, currentLine);
+                searchForEntry(masterBuild, "", e, line, currentLine);
             });
         }
     }
     
-    boolean searchForEntry(Entry entry, String line, long currentLine) {
+    void processLine(Run<?, ?> build, String line, long currentLine) {
+        if (line != null) {
+            // Run entries that only have to be found once
+            entriesOnce.forEach(e -> {
+                if (!e.alreadyFound) {
+                    if (searchForEntry(build, build.getUrl(), e, line, currentLine)) {
+                        e.alreadyFound = true;
+                    }
+                }
+            });
+            
+            // Run entries that can be run multiple times
+            entriesMultiple.forEach(e -> {
+                searchForEntry(build, build.getUrl(), e, line, currentLine);
+            });
+        }
+    }
+    
+    boolean searchForEntry(Run<?, ?> build, String buildUrl, Entry entry, String line, long currentLine) {
         if (entry.stringMatcher != null) {
             if (!line.contains(entry.stringMatcher)) {
                 return false;
@@ -95,9 +116,7 @@ public class BuildOutputAnalyzer {
             }
         }
         
-        System.out.println("Found something " + message);
-        
-        results.add(new Result(currentLine, entry.levelType, message, build.getUrl()));
+        results.add(new Result(currentLine, entry.levelType, message, buildUrl));
         if (entry.failBuild) {
             build.setResult(hudson.model.Result.FAILURE);
         }
@@ -105,10 +124,14 @@ public class BuildOutputAnalyzer {
         return true;
     }
     
-    public void addAction() {
+    public void addAction(Run<?, ?> build) {
         // Add an action to the build with the summary
         if (!results.isEmpty()) {
             build.addAction(new BuildAnalyzerAction(Lists.newArrayList(results)));
         }
+    }
+
+    public List<Result> getResults() {
+        return results;
     }
 }

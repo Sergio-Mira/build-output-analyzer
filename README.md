@@ -1,21 +1,21 @@
+*Pipeline Build Output Analyzer*
+Find string/regexp in build output and bring it into the build summary.
 Work in progress.
+
 
 Features
 ========
-- Find regular expressions in build output and sub build output
+- Find string/regular expressions in build output and sub build output
 - Customizable level of message: info, warning, error
 - Customizable message (if non provided the found text is used)
 - Dynamic message making use of regular expression groups (can extract info from the regular expression and use it to construct a human readable message)
-- Works with Parametrized Trigger Plugin
-- Works with Pipeline Plugin
-- Supports looking for regular expressions in a buffer of lines (multi line reg exp)
-- Creates direct link to the console line, usable if the Console Line Number plugin is installed
+- Creates direct link to the console line (if the build can be resolved), usable if the Console Line Number plugin is installed
 - Can fail the build if an entry is found
 
 Install
 =======
 
-Tested with Jenkins 1.625.3
+Tested with Jenkins 2.121.3
 
 * Build the plugin
 * Upload the HPI file found in the `target` folder to Jenkins under `Plugin Management - Advanced`
@@ -26,26 +26,37 @@ https://github.com/ericsmalling/console-linenumber-plugin
 Building
 ========
 
-Run `mvn install`.
+Run `mvn clean install`.
 
 Pipeline example
 ================
 ```groovy
-step([$class: "BuildAnalyzerRecorder",
-  entries: [
-    [$class: "Entry", levelType: "error", regex: "Emulator did not appear to start; giving up"],
-    [$class: "Entry", levelType: "error", regex: "Failed to make test runner session", message: "Simulator could not start"]
-  ]
-])
+analyzerEntries = []
+analyzerEntries.add([$class: "Entry", levelType: "info", stringMatcher: "Search for this"])
+
+buildOutputAnalyzer(entries: analyzerEntries) {
+  // Your pipeline steps here
+}
 ```
 
-TODO
-====
+Pipeline example with sub builds
+================================
+```groovy
+analyzerEntries = []
+analyzerEntries.add([$class: "Entry", levelType: "info", stringMatcher: "Search for this"])
 
-- Tests
-- Better support of Pipeline
-- Project Action
+savedBuilds = []
 
+buildOutputAnalyzer(entries: analyzerEntries) {
+  // Your pipeline steps here, this will be checked while it is being written
+  
+  // Save the build executions for any external builds ran
+  savedBuilds.push(build "subjob")
+}
+
+// Process post build any external builds that haven been run
+postBuildOutputAnalyzer(entries: analyzerEntries, builds: savedBuilds)
+```
 
 Screenshot
 ==========

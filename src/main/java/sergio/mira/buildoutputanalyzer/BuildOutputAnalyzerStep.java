@@ -17,8 +17,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
-import hudson.model.AbstractBuild;
 import hudson.model.Run;
+import java.io.FileOutputStream;
 import java.util.List;
 import javax.inject.Inject;
 import jenkins.YesNoMaybe;
@@ -60,7 +60,7 @@ public class BuildOutputAnalyzerStep extends AbstractStepImpl {
             context
                     .newBodyInvoker()
                     .withContext(createConsoleLogFilter(context))
-                    .withCallback(new BuildOutputAnalyzerExecutionCallback(context, analyzer))
+                    .withCallback(new BuildOutputAnalyzerExecutionCallback(build, context, analyzer))
                     .start();
             
             return false;
@@ -113,10 +113,8 @@ public class BuildOutputAnalyzerStep extends AbstractStepImpl {
             this.analizer = analizer;
         }
 
-        @SuppressWarnings("rawtypes")
         @Override
-        public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)
-                throws IOException, InterruptedException {
+        public OutputStream decorateLogger(Run build, OutputStream logger) throws IOException, InterruptedException {
             return new BuildOutputAnalyzerOutputStream(logger, analizer);
         }
     }
@@ -127,11 +125,14 @@ public class BuildOutputAnalyzerStep extends AbstractStepImpl {
         
         private final FutureCallback<Object> v;
 
+        private final transient Run<?, ?> build;
+        
         private final transient BuildOutputAnalyzer analyzer;
         
-        public BuildOutputAnalyzerExecutionCallback(FutureCallback<Object> v, BuildOutputAnalyzer analyzer) {
+        public BuildOutputAnalyzerExecutionCallback(Run<?, ?> build, FutureCallback<Object> v, BuildOutputAnalyzer analyzer) {
             if (!(v instanceof Serializable))
                 throw new IllegalArgumentException(v.getClass() + " is not serializable");
+            this.build = build;
             this.v = v;
             this.analyzer = analyzer;
         }
@@ -139,13 +140,13 @@ public class BuildOutputAnalyzerStep extends AbstractStepImpl {
         @Override
         public void onSuccess(StepContext context, Object result) {
             v.onSuccess(result);
-            analyzer.addAction();
+            analyzer.addAction(build);
         }
 
         @Override
         public void onFailure(StepContext context, Throwable t) {
             v.onFailure(t);
-            analyzer.addAction();
+            analyzer.addAction(build);
         }
     }
 }
