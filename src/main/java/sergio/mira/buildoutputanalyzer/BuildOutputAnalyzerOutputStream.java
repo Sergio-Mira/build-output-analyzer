@@ -43,19 +43,21 @@ public class BuildOutputAnalyzerOutputStream extends OutputStream {
     }
     
     private void processBytes(byte[] b, int off, int len) {
-        for (int i = off; i < off + len; i++) {
-            byte rb = b[i];
-            if (rb == NEW_LINE_CHARACTER) {
-                String line = strBuilder.toString();
-                analyzer.processWorkflowRunLine(line, currentLine);
-                
-                // Cleanup line
-                strBuilder.delete(0, strBuilder.length());
-                currentLine++;
-            } else {
-                strBuilder.append((char)rb);
+        if (analyzer != null) {
+            for (int i = off; i < off + len; i++) {
+                byte rb = b[i];
+                if (rb == NEW_LINE_CHARACTER) {
+                    String line = strBuilder.toString();
+                    analyzer.processWorkflowRunLine(line, currentLine);
+
+                    // Cleanup line
+                    strBuilder.delete(0, strBuilder.length());
+                    currentLine++;
+                } else {
+                    strBuilder.append((char)rb);
+                }
             }
-        }        
+        }
     }
 
     @Override
