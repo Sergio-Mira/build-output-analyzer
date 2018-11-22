@@ -10,7 +10,7 @@ public class BuildOutputAnalyzer {
     private final Run<?, ?> masterBuild;
     private final List<Entry> entriesOnce;
     private final List<Entry> entriesMultiple;
-    
+
     private final List<Result> results;
 
     public BuildOutputAnalyzer(Run<?, ?> build, List<Entry> entries) {
@@ -18,7 +18,7 @@ public class BuildOutputAnalyzer {
         this.entriesOnce = Lists.newArrayList();
         this.entriesMultiple = Lists.newArrayList();
         this.results = Lists.newArrayList();
-        
+
         entries.forEach(e -> {
             if (e.stringMatcher != null || e.pattern != null) {
                 if (e.multiple) {
@@ -31,7 +31,7 @@ public class BuildOutputAnalyzer {
             }
         });
     }
-    
+
     void processWorkflowRunLine(String line, long currentLine) {
         if (line != null) {
             // Run entries that only have to be found once
@@ -47,18 +47,18 @@ public class BuildOutputAnalyzer {
                     remove.add(entry);
                 }
             }
-            
+
             if (remove != null) {
                 entriesOnce.removeAll(remove);
             }
-            
+
             // Run entries that can be run multiple times
             entriesMultiple.forEach(e -> {
                 searchForEntry(masterBuild, "", e, line, currentLine);
             });
         }
     }
-    
+
     void processLine(Run<?, ?> build, String line, long currentLine) {
         if (line != null) {
             // Run entries that only have to be found once
@@ -69,21 +69,21 @@ public class BuildOutputAnalyzer {
                     }
                 }
             });
-            
+
             // Run entries that can be run multiple times
             entriesMultiple.forEach(e -> {
                 searchForEntry(build, build.getUrl(), e, line, currentLine);
             });
         }
     }
-    
+
     boolean searchForEntry(Run<?, ?> build, String buildUrl, Entry entry, String line, long currentLine) {
         if (entry.stringMatcher != null) {
             if (!line.contains(entry.stringMatcher)) {
                 return false;
             }
         }
-        
+
         Matcher matcher = null;
         if (entry.pattern != null) {
             matcher = entry.pattern.matcher(line);
@@ -91,7 +91,7 @@ public class BuildOutputAnalyzer {
                 return false;
             }
         }
-            
+
         String message = entry.message;
         if (matcher != null) {
             // Found via regexp
@@ -112,18 +112,18 @@ public class BuildOutputAnalyzer {
         } else {
             // Found via string
             if (message == null) {
-                message = "Found \"" + entry.stringMatcher + "\" in console log";
+                message = line;
             }
         }
-        
+
         results.add(new Result(currentLine, entry.levelType, message, buildUrl));
         if (entry.failBuild) {
             build.setResult(hudson.model.Result.FAILURE);
         }
-        
+
         return true;
     }
-    
+
     public void addAction(Run<?, ?> build) {
         // Add an action to the build with the summary
         if (!results.isEmpty()) {
